@@ -10,23 +10,29 @@ import java.util.List;
 public class UserDaoService {
     private static List<User> users = new ArrayList<>();
 
+    private static Integer usersCount = 0;
+
     static {
-        users.add(new User(1, "John", LocalDate.now().minusYears(30)));
-        users.add(new User(2, "Tommy", LocalDate.now().minusYears(40)));
-        users.add(new User(3, "Charlie", LocalDate.now().minusYears(20)));
+        users.add(new User(++usersCount, "John", LocalDate.now().minusYears(30)));
+        users.add(new User(++usersCount, "Tommy", LocalDate.now().minusYears(40)));
+        users.add(new User(++usersCount, "Charlie", LocalDate.now().minusYears(20)));
     }
 
     public List<User> findAll() {
         return users;
     }
 
-    public void save(User user) {
+    public User save(User user) {
+        user.setId(++usersCount);
         users.add(user);
+        return user;
     }
 
     public User findOne(Integer id) {
-        return users.stream().filter(user -> user.getId().equals(id)).findFirst().get();
+        return users.stream().filter(user -> user.getId().equals(id)).findFirst().orElse(null);
     }
 
-
+    public void deleteById(Integer id) {
+        users.removeIf(user -> user.getId().equals(id));
+    }
 }

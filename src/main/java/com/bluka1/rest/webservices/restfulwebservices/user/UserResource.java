@@ -1,10 +1,13 @@
 package com.bluka1.rest.webservices.restfulwebservices.user;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -20,8 +23,30 @@ public class UserResource {
         return service.findAll();
     }
 
-//    @PostMapping Mapping("/users")
-//    public void addUser(@PathVariable String name) {
-//        service.save(new User());
-//    }
+    @GetMapping("/users/{id}")
+    public EntityModel<User> getUserById(@PathVariable Integer id) {
+        User user = service.findOne(id);
+
+        if (user == null) {
+            throw new UserNotFoundException("id: " + id);
+        }
+
+        EntityModel<User> entityModel = EntityModel.of(user);
+        WebMvcLinkBuilder link = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getUsers());
+        entityModel.add(link.withRel("all-users"));
+        return entityModel;
+    }
+
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable Integer id) {
+        service.deleteById(id);
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<Object> createUser(@Valid @RequestBody User user) {
+        User savedUser = service.save(user);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(savedUser.getId()).toUri();
+        return ResponseEntity.created(location).build();
+    }
 }
