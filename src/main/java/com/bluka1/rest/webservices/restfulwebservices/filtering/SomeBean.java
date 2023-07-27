@@ -1,13 +1,18 @@
 package com.bluka1.rest.webservices.restfulwebservices.filtering;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties({"field1", "field2"})
+// static filtering
+//@JsonIgnoreProperties({"field1", "field2"})
+
+// dynamic filtering
+@JsonFilter("SomeBeanFilter")
 public class SomeBean {
     private String field1;
     //static filtering for field2
-    @JsonIgnore
+//    @JsonIgnore
     private String field2;
     private String field3;
 
